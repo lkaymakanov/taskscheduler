@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>taskscheduler</groupId>
   <artifactId>taskscheduler</artifactId>
-  <version>1.12</version>
+  <version>1.13</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
