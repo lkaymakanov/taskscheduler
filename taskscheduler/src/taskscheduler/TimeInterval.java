@@ -43,9 +43,10 @@ public final class TimeInterval extends Interval{
 	public static List<TimeInterval>  normalizeInterval(TimeInterval interval){
 		List<TimeInterval> l = new  ArrayList<TimeInterval>();
 		if(interval.from > interval.to){
-			Hour midnight = new Hour(23, 59, 59, 999);
-			l.add(new TimeInterval(interval.from, midnight.toMillis()));
-			l.add(new TimeInterval(midnight.toMillis(), interval.to));
+			Hour beforemidmid = new Hour(23, 59, 59, 999);   //one milisecond before mid night  -epsilon
+			Hour aftermid = new Hour(0, 0, 0, 1);            //one milisecond after mid night   +epsilon
+			l.add(new TimeInterval(interval.from, beforemidmid.toMillis()));
+			l.add(new TimeInterval(aftermid.toMillis(), interval.to));
 		}
 		return l;
 	}
@@ -57,9 +58,10 @@ public final class TimeInterval extends Interval{
 	 */
 	public static void normalizeInterval(TimeInterval interval, List<Interval> outputList){
 		if(interval.from > interval.to){
-			Hour midnight = new Hour(23, 59, 59, 999);
-			outputList.add(new TimeInterval(interval.from, midnight.toMillis()));
-			outputList.add(new TimeInterval(midnight.toMillis(), interval.to));
+			Hour beforemidmid = new Hour(23, 59, 59, 999);   //one milisecond before mid night  -epsilon
+			Hour aftermid = new Hour(0, 0, 0, 1);            //one milisecond after mid night   +epsilon
+			outputList.add(new TimeInterval(interval.from, beforemidmid.toMillis()));
+			outputList.add(new TimeInterval(aftermid.toMillis(), interval.to));
 		}else{
 			outputList.add(interval);
 		}
