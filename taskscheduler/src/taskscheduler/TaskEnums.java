@@ -1,41 +1,28 @@
 package taskscheduler;
 
+
 public class TaskEnums {
-	/**The task runs every sunday*/
-	private  final static long SUNDAY = 1;
-	/**The task runs every monday*/
-	private final static long MONDAY = 2;
-	/**The task runs every tuesday*/
-	private final static long TUESDAY = 4;
-	/**The task runs every wednesday*/
-	private final static long WEDNESDAY = 8;
-	/**The task runs every thursday*/
-	private final static long THURSDAY = 16;
-	/**The task runs every friday*/
-	private final static long FRIDAY = 32;
-	/**The task runs every saturday*/
-	private final static long SATURDAY = 64;
-	/**The task runs everyday*/
-	private final static long EVERY_DAY = 127;
+	
+	private final static  long [] powerOf2 = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
 	
 	/**The days of week  in format suitable for Scheduler...*/
 	public enum DAY_OF_WEEK{
 		/**The task runs every Sunday*/
-		SUNDAY(TaskEnums.SUNDAY),
+		SUNDAY(powerOf2[0]),
 		/**The task runs every Monday*/
-		MONDAY(TaskEnums.MONDAY),
+		MONDAY(powerOf2[1]),
 		/**The task runs every Tuesday*/
-		TUESDAY(TaskEnums.TUESDAY),
+		TUESDAY(powerOf2[2]),
 		/**The task runs every Wednesday*/
-		WEDNESDAY(TaskEnums.WEDNESDAY),
+		WEDNESDAY(powerOf2[3]),
 		/**The task runs every Thursday*/
-		THURSDAY(TaskEnums.THURSDAY),
+		THURSDAY(powerOf2[4]),
 		/**The task runs every Friday*/
-		FRIDAY(TaskEnums.FRIDAY),
+		FRIDAY(powerOf2[5]),
 		/**The task runs every Saturday*/
-		SATURDAY(TaskEnums.SATURDAY),
+		SATURDAY(powerOf2[6]),
 		/**The task runs everyday*/
-		EVERY_DAY(TaskEnums.EVERY_DAY),
+		EVERY_DAY(powerOf2[7] - 1),
 		
 		UNKNOWUN(-1);
 		private long day;
@@ -55,6 +42,57 @@ public class TaskEnums {
 			return UNKNOWUN;
 		}
 	}
+	
+	
+	/**The months  of year  in format suitable for Scheduler...*/
+	public enum MONTH_OF_YEAR{
+		/**The task runs JANUARY*/
+		JANUARY(powerOf2[0]),
+		/**The task runs FEBRUARY*/
+		FEBRUARY(powerOf2[1]),
+		/**The task runs MARCH*/
+		MARCH(powerOf2[2]),
+		/**The task runs APRIL*/
+		APRIL(powerOf2[3]),
+		/**The task runs MAY*/
+		MAY(powerOf2[4]),
+		/**The task runs JUNE*/
+		JUNE(powerOf2[5]),
+		/**The task runs JULY*/
+		JULY(powerOf2[6]),
+		/**The task runs AUGUST*/
+		AUGUST(powerOf2[7]),
+		/**The task runs SEPTEMBER*/
+		SEPTEMBER(powerOf2[8]),
+		/**The task runs OCTOBER*/
+		OCTOBER(powerOf2[9]),
+		/**The task runs NOVEMBER*/
+		NOVEMBER(powerOf2[10]),
+		/**The task runs DECEMBER*/
+		DECEMBER(powerOf2[11]),
+		/**The task runs EVERY_MONTH*/
+		EVERY_MONTH(powerOf2[11] - 1),
+		
+		UNKNOWUN(-1);
+		private long day;
+		
+		MONTH_OF_YEAR(long day){
+			this.day =day;
+		}
+		public long getDay() {
+			return day;
+		}
+		
+		public static MONTH_OF_YEAR  toMonthOfYear(long day){
+			MONTH_OF_YEAR [] d = MONTH_OF_YEAR.values();
+			for(MONTH_OF_YEAR dw : d){
+				if(dw.day == day) return dw;
+			}
+			return UNKNOWUN;
+		}
+	}
+	
+	
 
 	/***
 	 * The priority of task launched by the Scheduler !!!
@@ -121,5 +159,12 @@ public class TaskEnums {
 		  */
 		 DEAD
 	};
-
+	
+	
+	public static void main(String [] args){
+		for(long l : powerOf2){
+			System.out.println(MONTH_OF_YEAR.toMonthOfYear(l) +  " " + l);
+			System.out.println(DAY_OF_WEEK.toDayOfWeek(l) +  " " + l);
+		}
+	}
 }
