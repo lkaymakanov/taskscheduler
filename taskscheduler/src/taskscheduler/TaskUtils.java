@@ -173,5 +173,14 @@ public class TaskUtils {
 	}
 	
 	
+	/**
+	 * Obtains the task lock!!
+	 * @param task
+	 * @return
+	 */
+	public static ScheduledTaskLock getTaskLock(ScheduledTask task){
+		return task.lock;
+	}
+	
 	
 }

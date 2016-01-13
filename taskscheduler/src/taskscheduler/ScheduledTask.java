@@ -77,6 +77,10 @@ public final class ScheduledTask implements ITaskRunnable {
 	private String taskSheduleIntervals;  //
 	/**The stack trace after a crash!!!*/
 	private String stackTrace;
+	/**
+	 * The task lock!!!
+	 */
+	final ScheduledTaskLock lock = new ScheduledTaskLock();
 	
 	/***
 	 * No arg constructor used only to create the inner Builder objects!!!
@@ -232,48 +236,50 @@ public final class ScheduledTask implements ITaskRunnable {
 	public void run() {
 		currentThread = Thread.currentThread();
 		try {
-			// TODO Auto-generated method stub
-			timeOfLastRun = threadPoolTaskScheduler.now;
-			status = TASK_STATUS.RUNNING;
-			System.out.println("ScheduledTask with id " + id + " started successfuly at " + new Date() );
+			/***TRY to acquire  the task lock! If task lock has been acquired by other thread*/
+			//if(!lock.lock(new ScheduledTaskLockMessage("Lock has been acquired by thread with id " + currentThread.getId()))){
+				// TODO Auto-generated method stub
+				timeOfLastRun = threadPoolTaskScheduler.now;
+				status = TASK_STATUS.RUNNING;
+				System.out.println("ScheduledTask with id " + id + " started successfuly at " + new Date() );
+				
+				//register task
+				register.register(id, this);
+				
+				//the work to be done in thread
+				callBack.doWork(new ITaskProgressSetter() {
+					@Override
+					public void setTaskProgress(PercentageTaskProgress progress) {
+						// TODO Auto-generated method stub
+						ScheduledTask.this.progress = progress;
+					}
+				}, new ITaskInfoGetter() {
+					@Override
+					public TaskInfo getTaskIno() {
+						// TODO Auto-generated method stub
+						return getTaskInfo();
+					}
+				}, notifier);
+				
+				//notify object 
+				if(notifier !=null)  notifier.notify(getTaskInfo());
 			
-			//register task
-			register.register(id, this);
-			
-			//the work to be done in thread
-			callBack.doWork(new ITaskProgressSetter() {
-				@Override
-				public void setTaskProgress(PercentageTaskProgress progress) {
-					// TODO Auto-generated method stub
-					ScheduledTask.this.progress = progress;
-				}
-			}, new ITaskInfoGetter() {
-				@Override
-				public TaskInfo getTaskIno() {
-					// TODO Auto-generated method stub
-					return getTaskInfo();
-				}
-			}, notifier);
-			
-			//notify object 
-			if(notifier !=null)  notifier.notify(getTaskInfo());
-		
-			//calculate arbitrary long delay before next round!!!
-			if(maxRandomTimeOutSincelastRun > 0) minTimeOutSincelastRun = getRandomIninterval(minRandomTimeOutSincelastRun, maxRandomTimeOutSincelastRun);
-			
-			status = TASK_STATUS.COMPLETED;
-			System.out.println("ScheduledTask  with id " + id + " completed successfuly at " +  new Date()   );
-			
-			//report successful complete
-			callBack.OnCompleteSuccessfuly(new ITaskInfoGetter() {
-				@Override
-				public TaskInfo getTaskIno() {
-					// TODO Auto-generated method stub
-					return getTaskInfo();
-				}
-			}, notifier);
-			
-			System.out.println(getTaskInfo().toString());
+				//calculate arbitrary long delay before next round!!!
+				if(maxRandomTimeOutSincelastRun > 0) minTimeOutSincelastRun = getRandomIninterval(minRandomTimeOutSincelastRun, maxRandomTimeOutSincelastRun);
+				
+				status = TASK_STATUS.COMPLETED;
+				System.out.println("ScheduledTask  with id " + id + " completed successfuly at " +  new Date()   );
+				
+				//report successful complete
+				callBack.OnCompleteSuccessfuly(new ITaskInfoGetter() {
+					@Override
+					public TaskInfo getTaskIno() {
+						// TODO Auto-generated method stub
+						return getTaskInfo();
+					}
+				}, notifier);
+				
+				System.out.println(getTaskInfo().toString());
 			
 		} catch (Exception e) {
 			try{
@@ -300,7 +306,7 @@ public final class ScheduledTask implements ITaskRunnable {
 		}finally{
 			incrementCurrentTaskRounds();
 			register.unRegister(id);   //unregister task
-			
+			//lock.unLock();			   //unlock the lock
 			if(maxRounds > 0 && (currentTaskRounds >= maxRounds)){
 				status = TASK_STATUS.DEAD;
 				deadRegister.register(this, this);
@@ -333,7 +339,7 @@ public final class ScheduledTask implements ITaskRunnable {
 
 	public boolean isRunning() {
 		// TODO Auto-generated method stub
-		return (register.isRegistered(id) || (status != null && (status == TASK_STATUS.RUNNING)));
+		return  (register.isRegistered(id) || (status != null && (status == TASK_STATUS.RUNNING)));
 	}
 
 	public void stop() {
