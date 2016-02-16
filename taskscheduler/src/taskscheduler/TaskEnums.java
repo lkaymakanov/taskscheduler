@@ -3,7 +3,17 @@ package taskscheduler;
 
 public class TaskEnums {
 	
-	private final static  long [] powerOf2 = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048};
+	private final static  long [] powerOf2 = new long[64]; 
+	
+	//initialize power of 2 array!!!!
+	static
+	{
+		powerOf2[0] = 1;
+		for(int i = 1; i < powerOf2.length; i++){
+			powerOf2[i] = powerOf2[i-1]*2;
+		}
+		
+	}
 	
 	/**The days of week  in format suitable for Scheduler...*/
 	public enum DAY_OF_WEEK{
@@ -163,8 +173,9 @@ public class TaskEnums {
 	
 	public static void main(String [] args){
 		for(long l : powerOf2){
-			System.out.println(MONTH_OF_YEAR.toMonthOfYear(l) +  " " + l);
-			System.out.println(DAY_OF_WEEK.toDayOfWeek(l) +  " " + l);
+			System.out.println(l);
+			//System.out.println(MONTH_OF_YEAR.toMonthOfYear(l) +  " " + l);
+			//System.out.println(DAY_OF_WEEK.toDayOfWeek(l) +  " " + l);
 		}
 	}
 }
