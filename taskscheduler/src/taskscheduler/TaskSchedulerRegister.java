@@ -86,6 +86,15 @@ public class TaskSchedulerRegister<T extends ITask> implements ITaskSchedulerReg
 		return new TaskSchedulerRegister<T>();
 	}
 
+	/***
+	 * Retrieves the count of the running tasks!!!
+	 * @return
+	 */
+	public  int getRegisteredCount(){
+		synchronized (this) {
+			return registerMap.size();
+		}
+	}
 
 
 	public TaskInfo getTaskInfo(long id) {

@@ -238,6 +238,15 @@ public final  class ThreadPoolTaskScheduler implements ITaskScheduler<ScheduledT
 		}
 		return l;
 	}
+	
+	/***
+	 * Retrieves the count of the registered running tasks!!!
+	 * @return
+	 */
+	public int getRegisteredScheduledTaskCount(){
+		return register.getRegisteredCount();
+	}
+	
 
 	public void stop(long id) {
 		// TODO Auto-generated method stub
