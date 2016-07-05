@@ -3,6 +3,9 @@ package taskscheduler;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 
+import taskscheduler.TaskEnums.DAY_OF_WEEK;
+import taskscheduler.TaskEnums.MONTH_OF_YEAR;
+
 
 
 /***
@@ -10,53 +13,13 @@ import java.util.concurrent.ExecutorService;
  * Serves as function object!!!
  <pre>
  Example usage:
-public class Test {
-
-	public static void main(String args []) {
-		//create a task scheduler with a thread pool of 10 threads with 20 seconds delay !!!!
-		ThreadPoolTaskScheduler sch = TaskUtils.createThreadPoolTaskScheduler(10, new Frequency(20, TimeUnit.SECONDS));
-		//sch.removeTaskFromScheduledList(id);
-		
-		//create time intervals from - to!!!!
-		List<Interval> intervals = new ArrayList<Interval>();
-		intervals.add(new TimeInterval(new Hour(8, 20, 0, 0), new Hour(23, 40, 0,0)));   //the task will execute from 8:20 to 17:40 on the days defined by TaskEnums.MONDAY constants!!!
-		
-		//create & submit 10 tasks
-		for(int i=0; i < 10; i++){
-			    ScheduledTaskBuilder bd = ScheduledTask.getScheduledTaskBuilder();
-			   //the task will wait 30 milliseconds before the next start time!!!
-			   bd.setMinTimeOutSincelastRun(TimeUnit.SECONDS.toMillis(60))                
-			   .setTaskScheduleDays(TaskEnums.EVERY_DAY)    //the task will execute every day with arbitrary long interval with value between randomMin and randomMax!!!
-			   //The task will wait arbitrary long from 100 seconds to 200 seconds!!! The property minTimeOutSinceLastRun will be replaced by the calculated random interval
-			  // .setMinRandomTimeOutSincelastRun(100*1000).setMaxRandomTimeOutSincelastRun(200*1000)             
-			   //set the intervals in which the task should run!!!!It might be DateTime interval or TimeInterval!If DateTime interval the task is spawned on particular date & time represented by the Interval milliseconds
-			   .setIntervals(intervals);                                
-			   ScheduledTask task  =  bd.build(new IScheduledTaskCallBack() {
-					public void doWork(ITaskProgressSetter taskProgressSetter, ITaskInfoGetter taskinfoGetter, ITaskNotifier notifier) {
-						// TODO Auto-generated method stub
-					}
-					public void OnCrash(ITaskInfoGetter taskinfoGetter, ITaskNotifier notifier, Exception e) {
-						// TODO Auto-generated method stub
-					}
-					public void OnCompleteSuccessfuly(ITaskInfoGetter taskinfoGetter, ITaskNotifier notifier) {
-						// TODO Auto-generated method stub
-					}
-				});
-			sch.submitTask(task);
-		}
-		
-		
-		//start scheduler as a daemon or not
-		sch.startScheduler(false);
-		
-	}
-}
- </pre>
+  </pre>
  * @author lubo
  *
  *
  
  */
+
 public class TaskUtils {
 
 	private TaskUtils(){}
@@ -180,6 +143,50 @@ public class TaskUtils {
 	 */
 	public static ScheduledTaskLock getTaskLock(ScheduledTask task){
 		return task.lock;
+	}
+	
+	/**
+	 * The String representation of Schedule days!!!
+	 * @return
+	 */
+	public static String getTaskScheduleDays(long taskScheduleDays){
+		String	taskScheduleDaysSt = "";
+		if(taskScheduleDays == -1 || ((taskScheduleDays & DAY_OF_WEEK.EVERY_DAY.getDay()) == DAY_OF_WEEK.EVERY_DAY.getDay())) taskScheduleDaysSt+=" EVERY_DAY";
+		else{
+			if((taskScheduleDays & DAY_OF_WEEK.MONDAY.getDay()) != 0) taskScheduleDaysSt+=" MONDAY";
+		    if((taskScheduleDays & DAY_OF_WEEK.TUESDAY.getDay()) != 0) taskScheduleDaysSt+=" TUESDAY";
+			if((taskScheduleDays & DAY_OF_WEEK.WEDNESDAY.getDay()) != 0) taskScheduleDaysSt+=" WEDNESDAY";
+			if((taskScheduleDays & DAY_OF_WEEK.THURSDAY.getDay()) != 0) taskScheduleDaysSt+=" THURSDAY";
+			if((taskScheduleDays & DAY_OF_WEEK.FRIDAY.getDay()) != 0) taskScheduleDaysSt+=" FRIDAY";
+			if((taskScheduleDays & DAY_OF_WEEK.SATURDAY.getDay()) != 0) taskScheduleDaysSt+=" SATURDAY";
+			if((taskScheduleDays & DAY_OF_WEEK.SUNDAY.getDay()) != 0) taskScheduleDaysSt+=" SUNDAY";
+		}
+		return taskScheduleDaysSt;
+	}
+	
+    /**
+	 * The String representation of Schedule monts!!!
+	 * @return
+	 */
+	public static String getTaskScheduleMonths(long taskScheduleMonts){
+		String	taskScheduleMontsSt = "";
+		taskScheduleMontsSt = "";
+		if(taskScheduleMonts == -1 || ((taskScheduleMonts & MONTH_OF_YEAR.EVERY_MONTH.getMont()) == MONTH_OF_YEAR.EVERY_MONTH.getMont())) taskScheduleMontsSt+=" EVERY_MONTH";
+		else{
+			if((taskScheduleMonts & MONTH_OF_YEAR.JANUARY.getMont()) != 0) taskScheduleMontsSt+=" JANUARY";
+		    if((taskScheduleMonts & MONTH_OF_YEAR.FEBRUARY.getMont()) != 0) taskScheduleMontsSt+=" FEBRUARY";
+			if((taskScheduleMonts & MONTH_OF_YEAR.MARCH.getMont()) != 0) taskScheduleMontsSt+=" MARCH";
+			if((taskScheduleMonts & MONTH_OF_YEAR.APRIL.getMont()) != 0) taskScheduleMontsSt+=" APRIL";
+			if((taskScheduleMonts & MONTH_OF_YEAR.MAY.getMont()) != 0) taskScheduleMontsSt+=" MAY";
+			if((taskScheduleMonts & MONTH_OF_YEAR.JUNE.getMont()) != 0) taskScheduleMontsSt+=" JUNE";
+			if((taskScheduleMonts & MONTH_OF_YEAR.JULY.getMont()) != 0) taskScheduleMontsSt+=" JULY";
+			if((taskScheduleMonts & MONTH_OF_YEAR.AUGUST.getMont()) != 0) taskScheduleMontsSt+=" AUGUST";
+			if((taskScheduleMonts & MONTH_OF_YEAR.SEPTEMBER.getMont()) != 0) taskScheduleMontsSt+=" SEPTEMBER";
+			if((taskScheduleMonts & MONTH_OF_YEAR.OCTOBER.getMont()) != 0) taskScheduleMontsSt+=" OCTOBER";
+			if((taskScheduleMonts & MONTH_OF_YEAR.NOVEMBER.getMont()) != 0) taskScheduleMontsSt+=" NOVEMBER";
+			if((taskScheduleMonts & MONTH_OF_YEAR.DECEMBER.getMont()) != 0) taskScheduleMontsSt+=" DECEMBER";
+		}
+		return taskScheduleMontsSt;
 	}
 	
 	

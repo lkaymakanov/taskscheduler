@@ -46,6 +46,8 @@ public final  class ThreadPoolTaskScheduler implements ITaskScheduler<ScheduledT
 	long hourNowMillis;
 	/**Flag representing the day of week*/
 	long day;
+	/**Flag representing the month of year*/
+	long month;
 	/** The Daemon thread that starts the tasks!!!*/
 	private Thread schedulerDaemon = null;
 	/**The time the scheduler started!!!*/
@@ -110,8 +112,9 @@ public final  class ThreadPoolTaskScheduler implements ITaskScheduler<ScheduledT
 				
 				//refresh day of week
 				if(hourNowMillis + twoTimesDelay >= $24H_Const){
-					day =  getDayOfWeek();
+					getDayMontOfWeek();
 					System.out.println("Day of week = " + TaskEnums.DAY_OF_WEEK.toDayOfWeek(day));
+					System.out.println("Month of year = " + TaskEnums.MONTH_OF_YEAR.toMonthOfYear(month));
 				}
 				
 				//remove dead tasks
@@ -149,7 +152,7 @@ public final  class ThreadPoolTaskScheduler implements ITaskScheduler<ScheduledT
 				schedulerDaemon = new Thread(new Daemon());
 				schedulerDaemon.setDaemon(isDaemon);
 				startTime = new Date().getTime();
-				day = getDayOfWeek();
+				getDayMontOfWeek();
 				schedulerDaemon.start();
 			}
 		}
@@ -282,11 +285,13 @@ public final  class ThreadPoolTaskScheduler implements ITaskScheduler<ScheduledT
 	 * Calculate day of Week to conform to the TaskEnums Day Constants!!!!
 	 * @return
 	 */
-	private long getDayOfWeek(){
+	private void getDayMontOfWeek(){
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
-		return 1 << (c.get(Calendar.DAY_OF_WEEK) - 1);  //convert to TaskEnum Constants
+		month = (1 << c.get(Calendar.MONTH));
+		day = (1 << (c.get(Calendar.DAY_OF_WEEK) - 1));  //convert to TaskEnum Constants
 	}
+	
 
 	@Override
 	public void stop() {

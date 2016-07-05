@@ -19,12 +19,20 @@ public interface IScheduledTaskBuilder {
 	 */
 	public IScheduledTaskBuilder setNotifier(ITaskNotifier notifier) ;
 	/**
-	 * Determines when the task should run!!! Must be bitwise or of the constants
+	 * Determines which day the task should run!!! Must be bitwise or of the constants
 	 * TaskEnums.SUNDAY, TaskEnums.MONDAY, TaskEnums.TUESDAY... so on!!!
 	 * @param taskSchedulability
 	 * @return
 	 */
 	public IScheduledTaskBuilder setTaskScheduleDays(long taskSchedulability);
+	
+	/**
+	 * Determines which month the task should run!!! Must be bitwise or of the constants
+	 * TaskEnums.JANUARY, TaskEnums.FEBRUARY, TaskEnums.MARCH... so on!!!
+	 * @param taskSchedulability
+	 * @return
+	 */
+	public IScheduledTaskBuilder setTaskScheduleMonths(long taskScheduleMonths);
 
 	/**
 	 * Sets the intervals in which the task should run!!! May be DateTimeInterval or TimeInterval!

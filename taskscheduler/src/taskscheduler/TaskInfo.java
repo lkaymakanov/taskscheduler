@@ -3,7 +3,7 @@ package taskscheduler;
 
 import java.util.ArrayList;
 import java.util.List;
-import taskscheduler.TaskEnums.DAY_OF_WEEK;
+
 import taskscheduler.TaskEnums.TASK_PRIORITY;
 import taskscheduler.TaskEnums.TASK_STATUS;
 
@@ -27,8 +27,10 @@ public final class TaskInfo {
 	 /**shows how many times the task has been run!!!*/
 	 /**The maximum rounds the task should make -1 is infinity!!!!*/
 	 final long maxRounds;		   		
-	 /***The flags that show when this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!*/
-	 final long taskSchedulability;
+	 /***The flags that show which days this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!*/
+	 final long scheduleDays;
+	 /***The flags that show which days this task is to be executed.This is sum up of flags JANUARY | FEBRUARY... of TaskEnums public constants!!!*/
+	 final long scheduleMonths;
 	 /**The intervals in which the task should run!!!*/
 	 private  List<Interval> intervals;
 	 /**The amount of time in milliseconds the task must wait before the next spawn!!!*/
@@ -42,6 +44,8 @@ public final class TaskInfo {
 	 long maxRandomTimeOutSincelastRun;
 	 /**taskScheduleDays suitable for print format*/
 	 private String taskScheduleDays;    //suitable for print format
+	 /**taskScheduleMonts suitable for print format*/
+	 private String taskScheduleMonts;    //suitable for print format
 	 /**taskSheduleIntervals suitable for print format*/
 	 private String taskSheduleIntervals;  //
 	 /** The stack trace after a crash!!!*/
@@ -51,7 +55,8 @@ public final class TaskInfo {
 			 PercentageTaskProgress progress, 
 			 String lastError, 
 			 long currentTaskRounds,
-			 long maxRounds, long taskSchedulability,
+			 long maxRounds, long scheduleDays,
+			 long scheduleMonths,
 			 long minTimeOutSincelastRun,
 			 long timeOfLastRun,
 			 long minRandomTimeOutSincelastRun,
@@ -69,12 +74,13 @@ public final class TaskInfo {
 		 this.lastError = lastError;
 		 this.currentTaskRounds = currentTaskRounds;
 		 this.maxRounds = maxRounds;
-		 this.taskSchedulability = taskSchedulability;
+		 this.scheduleDays = scheduleDays;
 		 this.minTimeOutSincelastRun = minTimeOutSincelastRun;
 		 this.timeOfLastRun = timeOfLastRun;
 		 this.minRandomTimeOutSincelastRun = minRandomTimeOutSincelastRun;
 		 this.maxRandomTimeOutSincelastRun = maxRandomTimeOutSincelastRun;
 		 this.stackTrace = stackTrace;
+		 this.scheduleMonths = scheduleMonths;
 	 }
 	
 	
@@ -110,8 +116,13 @@ public final class TaskInfo {
 	}
 
 	/***The flags that show when this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!*/
-	public long getTaskSchedulability() {
-		return taskSchedulability;
+	public long getTaskScheduleDays() {
+		return scheduleDays;
+	}
+	
+	/***The flags that show when this task is to be executed.This is sum up of flags JANUARY | FEBRUARY... of TaskEnums public constants!!!*/
+	public long getTaskScheduleMonths() {
+		return scheduleMonths;
 	}
 
 	 /**The amount of time in milliseconds the task must wait before the next spawn!!!*/
@@ -169,41 +180,25 @@ public final class TaskInfo {
 
 	 
 	 public String toString(){
+		 if(taskScheduleDays == null) taskScheduleDays = TaskUtils.getTaskScheduleDays(scheduleDays);
+		 if(taskScheduleMonts == null) taskScheduleMonts = TaskUtils.getTaskScheduleMonths(scheduleMonths);
 		 return  " id " + id +
 				 " name " + (name == null || name.equals("") ? "Anonymous" : name ) +
 				 " status = " + status + ", priority = " + priority + ",  lastError = " + lastError+
 				 " start time =  " + progress.getStartTime() + " finish time = " + progress.getFinishTime() +
 				 " percentage =   " + progress.getPercentage() + 
 				 " maxRounds " + ((maxRounds < 0)  ? " INFINITY " : maxRounds ) +
-				 " taskSchedulability " + taskSchedulability +
+				 " taskSchedulability " + scheduleDays +
 				 " minTimeOutSincelastRun " + minTimeOutSincelastRun +
 				 " timeOfLastRun " + timeOfLastRun +
 				 " minRandomTimeOutSincelastRun "  + minRandomTimeOutSincelastRun+
 				 " maxRandomTimeOutSincelastRun "  + maxRandomTimeOutSincelastRun + 
 				 " Run intervals:\n " + getTaskSheduleIntervals() + 
-		 		 "\nRun on Days " + getTaskScheduleDays();
+		 		 "\nRun on Days " +  taskScheduleDays +
+		 		 "\nRun on months " + taskScheduleMonts;
 	 }
 	 
-	 /**
-		 * The String representation of Schedule days!!!
-		 * @return
-		 */
-		public String getTaskScheduleDays(){
-			if(taskScheduleDays !=null) return taskScheduleDays;
-			taskScheduleDays = "";
-			if(taskSchedulability == -1 || ((taskSchedulability & DAY_OF_WEEK.EVERY_DAY.getDay()) == DAY_OF_WEEK.EVERY_DAY.getDay())) taskScheduleDays+=" EVERY_DAY";
-			else{
-				if((taskSchedulability & DAY_OF_WEEK.MONDAY.getDay()) != 0) taskScheduleDays+=" MONDAY";
-			    if((taskSchedulability & DAY_OF_WEEK.TUESDAY.getDay()) != 0) taskScheduleDays+=" TUESDAY";
-				if((taskSchedulability & DAY_OF_WEEK.WEDNESDAY.getDay()) != 0) taskScheduleDays+=" WEDNESDAY";
-				if((taskSchedulability & DAY_OF_WEEK.THURSDAY.getDay()) != 0) taskScheduleDays+=" THURSDAY";
-				if((taskSchedulability & DAY_OF_WEEK.FRIDAY.getDay()) != 0) taskScheduleDays+=" FRIDAY";
-				if((taskSchedulability & DAY_OF_WEEK.SATURDAY.getDay()) != 0) taskScheduleDays+=" SATURDAY";
-				if((taskSchedulability & DAY_OF_WEEK.SUNDAY.getDay()) != 0) taskScheduleDays+=" SUNDAY";
-			}
-			return taskScheduleDays;
-		}
-		
+	 
 		
 
 		/***
@@ -237,8 +232,10 @@ public final class TaskInfo {
 		 /**shows how many times the task has been run!!!*/
 		 /**The maximum rounds the task should make -1 is infinity!!!!*/
 		private long maxRounds = -1;		   		
-		 /***The flags that show when this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!*/
-		private long taskSchedulability;
+		 /***The flags that show which days this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!*/
+		private  long scheduleDays;
+		 /***The flags that show which days this task is to be executed.This is sum up of flags JANUARY | FEBRUARY... of TaskEnums public constants!!!*/
+		private long scheduleMonths;
 		 /**The intervals in which the task should run!!!*/
 		 //private List<Interval> intervals;
 		 /**The amount of time in milliseconds the task must wait before the next spawn!!!*/
@@ -292,8 +289,8 @@ public final class TaskInfo {
 			this.maxRounds = maxRounds;
 			return this;
 		}
-		public TaskInfoBuilder setTaskSchedulability(long taskSchedulability) {
-			this.taskSchedulability = taskSchedulability;
+		public TaskInfoBuilder setTaskScheduleDays(long scheduleDays) {
+			this.scheduleDays = scheduleDays;
 			return this;
 		}
 		public TaskInfoBuilder setMinTimeOutSincelastRun(long minTimeOutSincelastRun) {
@@ -332,11 +329,15 @@ public final class TaskInfo {
 			return this;
 		}
 		
+		public TaskInfoBuilder setTaskScheduleMonths(long scheduleMonths) {
+			this.scheduleMonths = scheduleMonths;
+			return this;
+		}
 		public TaskInfo build(){
 			return new TaskInfo(id, (name == null || name.equals("") )? "Anonymous" : name, 
 					  intervals, priority, status,  progress, 
 					  lastError, currentTaskRounds,
-					  maxRounds,  taskSchedulability,
+					  maxRounds,  scheduleDays, scheduleMonths,
 					  minTimeOutSincelastRun,
 					  timeOfLastRun,
 					  minRandomTimeOutSincelastRun,

@@ -84,19 +84,19 @@ public class TaskEnums {
 		EVERY_MONTH(powerOf2[11] - 1),
 		
 		UNKNOWUN(-1);
-		private long day;
+		private long mont;
 		
-		MONTH_OF_YEAR(long day){
-			this.day =day;
+		MONTH_OF_YEAR(long mont){
+			this.mont =mont;
 		}
-		public long getDay() {
-			return day;
+		public long getMont() {
+			return mont;
 		}
 		
 		public static MONTH_OF_YEAR  toMonthOfYear(long day){
 			MONTH_OF_YEAR [] d = MONTH_OF_YEAR.values();
 			for(MONTH_OF_YEAR dw : d){
-				if(dw.day == day) return dw;
+				if(dw.mont == day) return dw;
 			}
 			return UNKNOWUN;
 		}

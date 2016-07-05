@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import taskscheduler.TaskEnums.DAY_OF_WEEK;
+import taskscheduler.TaskEnums.MONTH_OF_YEAR;
 import taskscheduler.TaskEnums.TASK_PRIORITY;
 import taskscheduler.TaskEnums.TASK_STATUS;
 
@@ -51,7 +52,9 @@ public final class ScheduledTask implements ITaskRunnable {
 	/**The maximum rounds the task should make -1 is infinity!!!!*/
 	private volatile long maxRounds = -1;		   		
 	/***The flags that show when this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!*/
-	private long taskSchedulability = DAY_OF_WEEK.EVERY_DAY.getDay();
+	private long taskScheduleDays = DAY_OF_WEEK.EVERY_DAY.getDay();
+	/***The flags that show when this task is to be executed.This is sum up of flags JANUARY | FEBRUARY... of TaskEnums public constants!!!*/
+	private long taskScheduleMonts = MONTH_OF_YEAR.EVERY_MONTH.getMont();
 	/**Callback that provides the methods to be executed when task is running, completes or blows!!! */
 	private IScheduledTaskCallBack callBack;
 	/**The intervals in which the task should run!!!*/
@@ -71,8 +74,10 @@ public final class ScheduledTask implements ITaskRunnable {
 	private ThreadPoolTaskScheduler  threadPoolTaskScheduler;
 	/**The thread object that is executing this Task!!!*/
 	private volatile Thread currentThread;
-	/**taskScheduleDays suitable for print format*/
-	private String taskScheduleDays;    //suitable for print format
+	/**taskScheduleDaysSt suitable for print format*/
+	private String taskScheduleDaysSt;    //suitable for print format
+	/**taskScheduleMonts suitable for print format*/
+	private String taskScheduleMontsSt; //suitable for print format
 	/**taskSheduleIntervals suitable for print format*/
 	private String taskSheduleIntervals;  //
 	/**The stack trace after a crash!!!*/
@@ -96,7 +101,8 @@ public final class ScheduledTask implements ITaskRunnable {
 			ITaskNotifier notifier, 
 			TASK_PRIORITY priority, 
 			IScheduledTaskCallBack callBack,
-			long taskSchedulability,
+			long taskScheduleDays,
+			long taskShceduleMonts,
 		    List<Interval> intervals,
 		    long minTimeOutSincelastRun,
 		    long maxRounds,
@@ -107,7 +113,8 @@ public final class ScheduledTask implements ITaskRunnable {
 		this.status = TASK_STATUS.CREATED;
 		this.priority = priority;
 		this.callBack = callBack;
-		this.taskSchedulability = taskSchedulability;
+		this.taskScheduleDays = taskScheduleDays;
+		this.taskScheduleMonts = taskShceduleMonts;
 		this.intervals = intervals;
 		this.minTimeOutSincelastRun = minTimeOutSincelastRun;
 		this.maxRounds = maxRounds;
@@ -133,7 +140,8 @@ public final class ScheduledTask implements ITaskRunnable {
 			ITaskNotifier notifier, 
 			TASK_PRIORITY priority, 
 			IScheduledTaskCallBack callBack,
-			long taskSchedulability,
+			long taskScheduleDays,
+			long taskScheduleMonts,
 		    List<Interval> intervals,
 		    long minTimeOutSincelastRun,
 		    long maxRounds,
@@ -142,7 +150,8 @@ public final class ScheduledTask implements ITaskRunnable {
 				 notifier, 
 				 priority, 
 				 callBack,
-				 taskSchedulability,
+				 taskScheduleDays,
+				 taskScheduleMonts,
 			     intervals,
 			     minTimeOutSincelastRun,
 			     maxRounds,
@@ -185,8 +194,10 @@ public final class ScheduledTask implements ITaskRunnable {
 		if(maxRounds > 0 && (currentTaskRounds >= maxRounds)) 	b = false;
 		
 		//proverka za denq na sedmicata
-		if((threadPoolTaskScheduler.day & taskSchedulability) == 0) b = false;
+		if((threadPoolTaskScheduler.day & taskScheduleDays) == 0) b = false;
 		
+		//proverka za meseca ot godinata
+		if((threadPoolTaskScheduler.month & taskScheduleMonts) == 0) b = false;
 		
 		return b;
 	}
@@ -214,7 +225,7 @@ public final class ScheduledTask implements ITaskRunnable {
 				setPriority(priority).
 				setCurrentTaskRounds(currentTaskRounds).
 				setProgress(progress).setMaxRounds(maxRounds).
-				setTaskSchedulability(taskSchedulability).
+				setTaskScheduleDays(taskScheduleDays).setTaskScheduleMonths(taskScheduleMonts).
 				setMinTimeOutSincelastRun(minTimeOutSincelastRun).
 				setMinRandomTimeOutSincelastRun(minRandomTimeOutSincelastRun).
 				setTimeOfLastRun(timeOfLastRun).
@@ -380,7 +391,8 @@ public final class ScheduledTask implements ITaskRunnable {
 		protected long maxRounds = -1;		   		//Long.MAX_VALUE;    //the maximum rounds the task should make -1 is infinity!!!!
 		protected String name;
 		protected ITaskNotifier notifier;
-		protected long taskSchedulability = -1;   	//the flags that show when this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!
+		protected long taskScheduleDays = -1;   	//the flags that show when this task is to be executed.This is sum up of flags MONDAY | TUESDAY... of TaskEnums public constants!!!
+		protected long taskScheduleMonthsB = -1;   	//the flags that show when this task is to be executed.This is sum up of flags JANUARY | FEBRUARY... of TaskEnums public constants!!!
 		protected List<Interval> intervals;
 		protected long minTimeOutSincelastRun = 0;
 		protected TASK_PRIORITY priority = TASK_PRIORITY.NORMAL;
@@ -413,8 +425,8 @@ public final class ScheduledTask implements ITaskRunnable {
 		 * @param taskSchedulability
 		 * @return
 		 */
-		public IScheduledTaskBuilder setTaskScheduleDays(long taskSchedulability) {
-			this.taskSchedulability = taskSchedulability;
+		public IScheduledTaskBuilder setTaskScheduleDays(long taskScheduleDays) {
+			this.taskScheduleDays = taskScheduleDays;
 			return this;
 		}
 
@@ -480,6 +492,14 @@ public final class ScheduledTask implements ITaskRunnable {
 			this.maxRounds = maxRounds;
 			return this;
 		}
+
+		@Override
+		public IScheduledTaskBuilder setTaskScheduleMonths(
+				long taskScheduleMonths) {
+			// TODO Auto-generated method stub
+			this.taskScheduleMonthsB = taskScheduleMonths;
+			return this;
+		}
 		
 	}
 	
@@ -501,7 +521,8 @@ public final class ScheduledTask implements ITaskRunnable {
 					 notifier, 
 					 priority, 
 					 taskCallBack,
-					 taskSchedulability,
+					 taskScheduleDays,
+					 taskScheduleMonthsB,
 				     intervals,
 				     minTimeOutSincelastRun, 
 				     maxRounds,
@@ -530,7 +551,8 @@ public final class ScheduledTask implements ITaskRunnable {
 			bd.notifier = task.notifier;
 			bd.name = task.name;
 			bd.priority = task.priority;
-			bd.taskSchedulability = task.taskSchedulability;
+			bd.taskScheduleDays = task.taskScheduleDays;
+			bd.taskScheduleMonthsB = task.taskScheduleMonts;
 			bd.intervals = task.intervals;
 			bd.minTimeOutSincelastRun = task.minTimeOutSincelastRun;
 			bd.maxRounds = task.maxRounds;
@@ -552,7 +574,8 @@ public final class ScheduledTask implements ITaskRunnable {
 					 notifier, 
 					 priority, 
 					 taskCallBack,
-					 taskSchedulability,
+					 taskScheduleDays,
+					 taskScheduleMonthsB,
 				     intervals,
 				     minTimeOutSincelastRun, 
 				     maxRounds,
@@ -607,33 +630,19 @@ public final class ScheduledTask implements ITaskRunnable {
 		sb.append("Min Delay Between Runs: " + delay + "\n");
 		sb.append(getRunintervals());
 		String runDays = "Run on Days: ";
-		runDays += getTaskSheduleDays();
+		String runMonths = "Run months: ";
+		if(taskScheduleDaysSt == null) taskScheduleDaysSt = TaskUtils.getTaskScheduleDays(taskScheduleDays);
+		if(taskScheduleMontsSt == null) taskScheduleMontsSt =  TaskUtils.getTaskScheduleMonths(taskScheduleMonts);
+		runDays += taskScheduleDaysSt;
+		runMonths += taskScheduleMontsSt;
 		sb.append(runDays + "\n");
+		sb.append(runMonths + "\n");
 		sb.append("+=============================================================================================================================+\n");
 		sb.append("\n");
 		return sb.toString();
 	}
 	
 	
-	/**
-	 * The String representation of Schedule days!!!
-	 * @return
-	 */
-	String getTaskSheduleDays(){
-		if(taskScheduleDays !=null) return taskScheduleDays;
-		taskScheduleDays = "";
-		if(taskSchedulability == -1 || ((taskSchedulability & DAY_OF_WEEK.EVERY_DAY.getDay()) == DAY_OF_WEEK.EVERY_DAY.getDay())) taskScheduleDays+=" EVERY_DAY";
-		else{
-			if((taskSchedulability & DAY_OF_WEEK.MONDAY.getDay()) != 0) taskScheduleDays+=" MONDAY";
-		    if((taskSchedulability & DAY_OF_WEEK.TUESDAY.getDay()) != 0) taskScheduleDays+=" TUESDAY";
-			if((taskSchedulability & DAY_OF_WEEK.WEDNESDAY.getDay()) != 0) taskScheduleDays+=" WEDNESDAY";
-			if((taskSchedulability & DAY_OF_WEEK.THURSDAY.getDay()) != 0) taskScheduleDays+=" THURSDAY";
-			if((taskSchedulability & DAY_OF_WEEK.FRIDAY.getDay()) != 0) taskScheduleDays+=" FRIDAY";
-			if((taskSchedulability & DAY_OF_WEEK.SATURDAY.getDay()) != 0) taskScheduleDays+=" SATURDAY";
-			if((taskSchedulability & DAY_OF_WEEK.SUNDAY.getDay()) != 0) taskScheduleDays+=" SUNDAY";
-		}
-		return taskScheduleDays;
-	}
 	
 	/***
 	 * The String representation of Run intervals - suitable for print!!!
