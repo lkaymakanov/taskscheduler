@@ -81,7 +81,7 @@ public class TaskEnums {
 		/**The task runs DECEMBER*/
 		DECEMBER(powerOf2[11]),
 		/**The task runs EVERY_MONTH*/
-		EVERY_MONTH(powerOf2[11] - 1),
+		EVERY_MONTH(powerOf2[12] - 1),
 		
 		UNKNOWUN(-1);
 		private long mont;
